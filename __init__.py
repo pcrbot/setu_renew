@@ -91,6 +91,9 @@ async def send_random_setu(bot, ev):
         return
     for _ in range(num):
         msg = await get_setu(gid)
+        if msg == None:
+            await bot.send(ev, '无可用模块')
+            return
         await bot.send(ev, msg)
         await asyncio.sleep(1)
 
@@ -126,6 +129,8 @@ async def send_ranking(bot, ev):
     if page < 0:
         page = 0
     msg = await get_ranking(gid, page)
+    if msg == None:
+        msg = '模块未启用'
     await bot.send(ev, msg)
 
 @sv.on_prefix(('看涩图', '看色图', '看瑟图'))
@@ -149,6 +154,9 @@ async def send_ranking_setu(bot, ev):
         return
     for i in range(start, end):
         msg = await get_ranking_setu(gid, i)
+        if msg == None:
+            await bot.send(ev, '模块未启用')
+            return
         await bot.send(ev, msg)
 
 @sv.scheduled_job('interval', minutes=30)

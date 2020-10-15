@@ -52,7 +52,7 @@ async def get_setu(group_id):
     elif source == 3:
         image = await acggov_get_setu()
     else:
-        return '功能未启用'
+        return None
     if not image:
         return '获取失败'
     elif image['id'] != 0:
@@ -90,13 +90,13 @@ async def search_setu(group_id, keyword):
 
 async def get_ranking(group_id, page: int = 0):
     if not get_group_config(group_id, 'acggov'):
-        return 'acggov模块未启用'
+        return None
     return await acggov_get_ranking(page)
 
 
 async def get_ranking_setu(group_id, number: int) -> (int, str):
     if not get_group_config(group_id, 'acggov'):
-        return 'acggov模块未启用'
+        return None
     image = await acggov_get_ranking_setu(number)
     if not image:
         return '获取失败'
