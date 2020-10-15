@@ -8,6 +8,7 @@ config = {
         "freq_limit": 10,
     },
     "default": {
+        "withdraw" : 0,
         "lolicon": True,
         "lolicon_r18": False,
         "acggov": False,

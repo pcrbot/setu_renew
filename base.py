@@ -60,7 +60,7 @@ async def get_setu(group_id):
     else:
         return image['title']
 
-async def search_setu(group_id, keyword):
+async def search_setu(group_id, keyword, num):
     source_list = []
     if get_group_config(group_id, 'lolicon') and get_group_config(group_id, 'lolicon_r18'):
         source_list.append(2)
@@ -72,21 +72,24 @@ async def search_setu(group_id, keyword):
         source_list.append(3)
 
     if len(source_list) == 0:
-        return '无可用模块'
-
-    while len(source_list) > 0:
+        return None
+    
+    image_list = None
+    msg_list = []
+    while len(source_list) > 0 and len(msg_list) == 0:
         source = source_list.pop(random.randint(0, len(source_list) - 1))
         if source == 0:
-            image = await lolicon_search_setu(keyword, 0)
+            image_list = await lolicon_search_setu(keyword, 0, num)
         elif source == 1:
-            image = await lolicon_search_setu(keyword, 1)
+            image_list = await lolicon_search_setu(keyword, 1, num)
         elif source == 2:
-            image = await lolicon_search_setu(keyword, 2)
+            image_list = await lolicon_search_setu(keyword, 2, num)
         elif source == 3:
-            image = await acggov_search_setu(keyword)
-        if image and image['id'] != 0:
-            return format_setu_msg(image)
-    return '无搜索结果'
+            image_list = await acggov_search_setu(keyword, num)
+        if image_list and len(image_list) > 0:
+            for image in image_list:
+                msg_list.append(format_setu_msg(image))
+    return msg_list
 
 async def get_ranking(group_id, page: int = 0):
     if not get_group_config(group_id, 'acggov'):

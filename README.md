@@ -27,6 +27,7 @@
 - `涩图` : 随机获取1张图片
 - `来n张涩图` : 随机获取n张图片
 - `搜涩图 keyword` : 搜索指定关键字的图片
+- `搜n张涩图 keyword` : 搜索n张指定关键字的图片
 - `本日涩图排行榜 [page]` : 获取p站排行榜
 - `看涩图 [n]` : 获取p站排行榜指定排名的图片
 - `看涩图 start end` : 获取p站排行榜排名从start到end的全部图片
@@ -35,7 +36,11 @@
 
 ### 以下指令仅限超级用户使用
 
-- `setu set 模块 on/off [群号]` : 开启/关闭本群或指定群的模块, 可用模块: `acggov` `lolicon` `lolicon_r18`
+- `setu set 模块 设置值 [群号]` : 修改本群或指定群的设置, 以下为设置项 - 取值 - 说明:
+  - `acggov` : `on / off` 是否开启acggov模块
+  - `lolicon` : `on / off` 是否开启lolicon模块
+  - `lolicon_r18` : `on / off` 是否开启lolicon_r18模块
+  - `withdraw` : `n` 发出的图片在n秒后撤回,设置为0表示不撤回
 - `setu get [群号]` : 查看本群或指定群的模块开启状态
 - `setu fetch` :  手动从api拉取一批图片存入本地仓库(插件每半小时会自动拉取一次)
 - `setu warehouse` : 查询本地仓库图片数量

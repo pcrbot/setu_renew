@@ -226,8 +226,7 @@ def get_setu_native(r18 = 0, uid = 0):
     
     return image
 
-def search_setu_native(keyword, r18 = 0):
-    image = generate_image_struct()
+def search_setu_native(keyword, r18, num):
     result_list = []
     if r18 == 0 or r18 == 2:
         for k, v in native_info.items():
@@ -243,10 +242,14 @@ def search_setu_native(keyword, r18 = 0):
                     'uid': k,
                     'r18': 1,
                 })
-    if len(result_list) > 0:
-        result = random.choice(result_list)
+    if len(result_list) > num:
+        result_list = random.sample(result_list, num)
+    image_list = []
+    for result in result_list:
         image = get_setu_native(result['r18'], result['uid'])
-    return image
+        if image['data']:
+            image_list.append(image)
+    return image_list
 
 # r18: 0 正常 1 r18 2 混合
 async def lolicon_get_setu(r18):
@@ -262,15 +265,11 @@ async def lolicon_get_setu(r18):
         return None
 
 # r18: 0 正常 1 r18 2 混合
-async def lolicon_search_setu(keyword, r18 = 0):
+async def lolicon_search_setu(keyword, r18, num):
     if get_config('lolicon', 'mode') == 1 or get_config('lolicon', 'mode') == 2:
-        image_list = await get_setu_online(1, r18, keyword)
-        if len(image_list) > 0:
-            return image_list[0]
-        else:
-            return None
+        return await get_setu_online(num, r18, keyword)
     elif get_config('lolicon', 'mode') == 3: #离线模式
-        return search_setu_native(keyword, r18)
+        return search_setu_native(keyword, r18, num)
     else:
         return None
 

@@ -4,6 +4,7 @@
         "freq_limit": 10
     },
     "default": {
+        "withdraw": 0,
         "lolicon": true,
         "lolicon_r18": false,
         "acggov": false

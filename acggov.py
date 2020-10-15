@@ -323,8 +323,9 @@ def get_setu_native(uid = 0):
     
     return image
 
-async def search_setu_online(keyword):
+async def search_setu_online(keyword, num):
     image_list = await query_search(keyword)
+    valid_list = []
     while len(image_list) > 0:
         image = image_list.pop(random.randint(0, len(image_list) - 1))
         #检查本地是否存在该图片
@@ -334,7 +335,6 @@ async def search_setu_online(keyword):
             with open(res.path, 'rb') as f:
                 image['data'] = f.read()
                 image['native'] = True
-                return image
         else:
             url = image['url']
             if get_config('acggov', 'pixiv_direct'):
@@ -346,19 +346,27 @@ async def search_setu_online(keyword):
             if image['data']:
                 if get_config('acggov', 'mode') == 2:
                     save_image(image)
-                return image
-    return None
+        if image['data']:
+            valid_list.append(image)
+        if len(valid_list) >= num:
+            break
+    return valid_list
 
-def search_setu_native(keyword):
+def search_setu_native(keyword, num):
     image = generate_image_struct()
     result_list = []
     for k, v in native_info.items():
         if v.find(keyword) >= 0:
             result_list.append(k)
-    if len(result_list) > 0:
-        result = random.choice(result_list)
+
+    if len(result_list) > num:
+        result_list = random.sample(result_list, num)
+    image_list = []
+    for result in result_list:
         image = get_setu_native(result)
-    return image
+        if image['data']:
+            image_list.append(image)
+    return image_list
 
 async def acggov_get_setu():
     if get_config('acggov', 'mode') >= 2:
@@ -368,11 +376,11 @@ async def acggov_get_setu():
     else:
         return None
 
-async def acggov_search_setu(keyword):
+async def acggov_search_setu(keyword, num):
     if get_config('acggov', 'mode') == 1 or get_config('acggov', 'mode') == 2:
-        return await search_setu_online(keyword)
+        return await search_setu_online(keyword, num)
     elif get_config('acggov', 'mode') == 3:
-        return search_setu_native(keyword)
+        return search_setu_native(keyword, num)
     else:
         return None
 
