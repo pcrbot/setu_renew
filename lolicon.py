@@ -178,7 +178,7 @@ async def get_setu_online(num, r18 = 0, keyword = None):
             else:
                 image['data'] = await download_image(image['url'])
             image['native'] = False
-            if image['data'] and get_config('acggov', 'mode') == 2:
+            if image['data'] and get_config('lolicon', 'mode') == 2:
                 save_image(image)
         if image['data']:
             valid_list.append(image)
