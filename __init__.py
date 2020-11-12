@@ -83,7 +83,7 @@ async def send_setu(bot, ev):
         msg = 'invalid parameter'
     await bot.send(ev, msg)
 
-@sv.on_rex(r'^不够[涩瑟色]|^[涩瑟色]图$|^来一?[点份张].*[涩瑟色]图|^[再]?来?(\d*)?[份点张]([涩色瑟]图)?')
+@sv.on_rex(r'^不够[涩瑟色]|^再来[点张份]|^[涩瑟色]图$|^[再]?来?(\d*)?[份点张]([涩色瑟]图)')
 async def send_random_setu(bot, ev):
     num = 1
     match = ev['match']
