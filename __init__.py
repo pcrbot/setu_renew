@@ -1,27 +1,31 @@
 import hoshino
 import asyncio
 from .base import *
-from .config import get_config, get_group_config, set_group_config
+from .config import get_config, get_group_config, load_config, set_group_config,group_list_check, set_group_list
 
-HELP_MSG = '''色图/来n张色图 : 随机获取1张/n张色图
-搜[n张]色图 keyword : 搜索指定关键字的色图,附带数量可以获取多张
-本日涩图排行榜 [page] : 获取p站排行榜(需开启acggov模块)
-看涩图 [n] 或 [start end] : 获取p站排行榜指定序号色图(需开启acggov模块)'''
-sv = hoshino.Service('setu_mix', bundle='pcr娱乐', help_=HELP_MSG)
+HELP_MSG = '''
+请见网页帮助
+'''
+sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG)
 
-#设置limiter
+#设置limiter 
 tlmt = hoshino.util.DailyNumberLimiter(get_config('base', 'daily_max'))
 flmt = hoshino.util.FreqLimiter(get_config('base', 'freq_limit'))
 
-def check_lmt(uid, num):
+def check_lmt(uid, num, gid):
     if uid in hoshino.config.SUPERUSERS:
         return 0, ''
+    if group_list_check(gid) != 0:
+        if group_list_check(gid) == 1:
+            return 1, f'此功能启用了白名单模式,本群未在白名单中,请联系维护组解决'
+        else:
+            return 1, f'此功能已在本群禁用,可能因为人数超限或之前有滥用行为,请联系维护组解决'
     if not tlmt.check(uid):
-        return 1, f"您今天已经冲过{get_config('base', 'daily_max')}次了,请明天再来!"
+        return 1, f"您今天已经冲过{get_config('base', 'daily_max')}次了,请明天再来~"
     if num > 1 and (get_config('base', 'daily_max') - tlmt.get_num(uid)) < num:
-            return 1, f"您今天的剩余次数为{get_config('base', 'daily_max') - tlmt.get_num(uid)}次,已不足{num}次,请节制!"
+            return 1, f"您今天的剩余次数为{get_config('base', 'daily_max') - tlmt.get_num(uid)}次,已不足{num}次,请冲少点(恼)!"
     if not flmt.check(uid):
-        return 1, f'您冲的太快了,请等待{round(flmt.left_time(uid))}秒!'
+        return 1, f'您冲的太快了,{round(flmt.left_time(uid))}秒后再来吧~'
     #tlmt.increase(uid,num)
     flmt.start_cd(uid)
     return 0, ''
@@ -37,8 +41,8 @@ async def send_setu(bot, ev):
     if not is_su:
         msg = '需要超级用户权限'
     elif len(args) == 0:
-        msg = 'invalid parameter'
-    elif args[0] == 'set' and len(args) >= 3: #setu set module on [group]
+        msg = '无效参数'
+    elif args[0] == '设置' and len(args) >= 3: #setu set module on [group]
         if len(args) >= 4 and args[3].isdigit():
             gid = int(args[3])
         key = None
@@ -49,110 +53,129 @@ async def send_setu(bot, ev):
             key = 'lolicon_r18'
         elif args[1] == 'acggov':
             key = 'acggov'
-        elif args[1] == 'withdraw':
+        elif args[1] == '撤回':
             key = 'withdraw'
-        if args[2] == 'on' or args[2] == 'true':
+        if args[2] == '开' or args[2] == '启用':
             value = True
-        elif args[2] == 'off' or args[2] == 'false':
+        elif args[2] == '关' or args[2] == '禁用':
             value = False
         elif args[2].isdigit():
             value = int(args[2])
         if key:
             set_group_config(gid, key, value)
-            msg = f'{gid} : {key} = {value}'
+            msg = '设置成功！当前设置值如下:\n'
+            msg += f'群/{gid} : 设置项/{key} = 值/{value}'
         else:
-            msg = 'invalid parameter'
-    elif args[0] == 'get':
+            msg = '无效参数'
+    elif args[0] == '状态':
         if len(args) >= 2 and args[1].isdigit():
             gid = int(args[1])
-        msg = f'group {gid} :'
-        msg += f'\nwithdraw : {get_group_config(gid, "withdraw")}'
-        msg += f'\nlolicon : {get_group_config(gid, "lolicon")}'
-        msg += f'\nlolicon_r18 : {get_group_config(gid, "lolicon_r18")}'
-        msg += f'\nacggov : {get_group_config(gid, "acggov")}'
-    elif args[0] == 'fetch':
-        await bot.send(ev, 'start fetch mission')
+        withdraw_status = "不撤回" if get_group_config(gid, "withdraw") == 0 else f'{get_group_config(gid, "withdraw")}秒'
+        lolicon_status = "启用" if get_group_config(gid, "lolicon") else "禁用"
+        lolicon_r18_status = "启用" if get_group_config(gid, "lolicon_r18") else "禁用"
+        acggov_status = "启用" if get_group_config(gid, "acggov") else "禁用"
+        msg = f'群 {gid} :'
+        msg += f'\n撤回时间: {withdraw_status}'
+        msg += f'\nlolicon 源: {lolicon_status}'
+        msg += f'\nlolicon_r18 源: {lolicon_r18_status}'
+        msg += f'\nacggov 源: {acggov_status}'
+    elif args[0] == '缓存':
+        await bot.send(ev, '开始缓存')
         await fetch_process()
-        msg = 'fetch mission complete'
-    elif args[0] == 'warehouse':
-        msg = 'warehouse:'
+        msg = '缓存进程结束'
+    elif args[0] == '仓库':
+        msg = '仓库:'
         state = check_path()
         for k, v in state.items():
-            msg += f'\n{k} : {v}'
+            msg += f'\n{k}源 : {v}张'
+    elif args[0] == "重载":
+        load_config()
+        msg = '重载完成'
+    elif args[0] == "黑名单" and len(args) == 3:# setu 黑名单 新增/删除 gid
+        mode = 0 if args[1] == "新增" else 1
+        group_id = args[2]
+        statuscode = set_group_list(group_id,1,mode)
+        if statuscode == 403:
+            msg = '无法访问黑白名单'
+        elif statuscode == 404:
+            msg = '群不在指定的列表中'
+        elif statuscode == 401:
+            msg = f'警告！黑名单模式未开启！\n成功{args[1]}群{group_id}'
+        else:
+            msg = f'成功{args[1]}群{group_id}'
+    elif args[0] == '白名单' and len(args) == 3:  # setu 白名单 新增/删除 gid
+        mode = 0 if args[1] == "新增" else 1
+        group_id = args[2]
+        statuscode = set_group_list(group_id,0,mode)
+        if statuscode == 403:
+            msg = '无法访问黑白名单'
+        elif statuscode == 404:
+            msg = '群不在指定的列表中'
+        elif statuscode == 402:
+            msg = f'警告！白名单模式未开启！\n成功{args[1]}群{group_id}'
+        else:
+            msg = f'成功{args[1]}群{group_id}'
     else:
-        msg = 'invalid parameter'
+        msg = '无效参数'
     await bot.send(ev, msg)
 
-@sv.on_rex(r'^不够[涩瑟色]|^再来[点张份]|^[涩瑟色]图$|^[再]?来?(\d*)?[份点张]([涩色瑟]图)')
-async def send_random_setu(bot, ev):
-    num = 1
-    match = ev['match']
-    try:
-        num = int(match.group(1))
-    except:
-        pass
-    uid = ev['user_id']
-    gid = ev['group_id']
-    result, msg = check_lmt(uid, num)
-    if result != 0:
-        await bot.send(ev, msg)
-        return
-
-    result_list = []
-    for _ in range(num):
-        msg = await get_setu(gid)
-        if msg == None:
-            await bot.send(ev, '无可用模块')
-            return
-        try:
-            result_list.append(await bot.send(ev, msg))
-        except:
-            print('图片发送失败')
-        await asyncio.sleep(1)
-
-    tlmt.increase(uid, len(result_list))
-
-    second = get_group_config(gid, "withdraw")
-    if second and second > 0:
-        await asyncio.sleep(second)
-        for result in result_list:
-            try:
-                await bot.delete_msg(self_id=ev['self_id'], message_id=result['message_id'])
-            except:
-                print('撤回失败')
-            await asyncio.sleep(1)
-
-@sv.on_rex(r'^搜[索]?(\d*)[份张]*(.*?)[涩瑟色]图(.*)')
+@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給](?P<num>.?)[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
 async def send_search_setu(bot, ev):
     uid = ev['user_id']
     gid = ev['group_id']
-
-    keyword = ev['match'].group(2) or ev['match'].group(3)
-    if not keyword:
-        await bot.send(ev, '需要提供关键字')
-        return
-    keyword = keyword.strip()
-    num = ev['match'].group(1)
+    num = ev['match'].group('num')
     if num:
-        num = int(num.strip())
+        try:
+            num = int(num)
+            if num > 1:
+                await bot.send(ev,'太贪心辣,一次只能要一份涩图哦~')
+                num = 1
+            else:
+                num = int(num.strip())
+        except:
+            num = 1
     else:
         num = 1
-    result, msg = check_lmt(uid, num)
+    result, msg = check_lmt(uid, num, gid)
     if result != 0:
         await bot.send(ev, msg)
         return
-
-    await bot.send(ev, '正在搜索...')
-    msg_list = await search_setu(gid, keyword, num)
-    if len(msg_list) == 0:
-        await bot.send(ev, '无结果')
+    keyword = ev['match'].group('keyword')
     result_list = []
-    for msg in msg_list:
-        try:
-            result_list.append(await bot.send(ev, msg))
-        except:
-            print('图片发送失败')
-        await asyncio.sleep(1)
+    if not keyword:
+        for _ in range(num):
+            msg = await get_setu(gid)
+            if msg == None:
+                await bot.send(ev, '无可用setu模块')
+                return
+            try:
+                result_list.append(await bot.send(ev, msg))
+            except:
+                print('[ERROR]图片发送失败')
+            await asyncio.sleep(1)
+    else:
+        keyword = keyword.strip()
+        await bot.send(ev, '搜索中...')
+        msg_list = await search_setu(gid, keyword, num)
+        if len(msg_list) == 0:
+            await bot.send(ev, '没~找~到~哦,随机赠送你一份setu吧~\n可能原因:1.没有使用标准或正式角色名称\n2.兄啊，你的XP怎么这么怪啊.jpg\n3.网络不佳/搜索额度超限')
+            for _ in range(num):
+                msg = await get_setu(gid)
+                if msg == None:
+                    await bot.send(ev, '无可用setu模块')
+                    return
+                try:
+                    result_list.append(await bot.send(ev, msg))
+                except:
+                    print('[ERROR]图片发送失败')
+                await asyncio.sleep(1)
+        else:
+            for msg in msg_list:
+                try:
+                    result_list.append(await bot.send(ev, msg))
+                except:
+                    print('[ERROR]图片发送失败')
+                await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
     if second and second > 0:
@@ -161,13 +184,13 @@ async def send_search_setu(bot, ev):
             try:
                 await bot.delete_msg(self_id=ev['self_id'], message_id=result['message_id'])
             except:
-                print('撤回失败')
+                print('[ERROR]撤回失败')
             await asyncio.sleep(1)
             
-@sv.on_rex(r'([本每]日)?[涩色瑟]图排行榜\D*(\d*)')
+@sv.on_rex(r'^[本每]日[涩色瑟]图排行榜\D*(\d*)')
 async def send_ranking(bot, ev):
     gid = ev['group_id']
-    page = ev['match'].group(2)
+    page = ev['match'].group(1)
     if page and page.isdigit():
         page = int(page)
         page -= 1
@@ -195,7 +218,7 @@ async def send_ranking_setu(bot, ev):
         end = start + 1
     if len(args) > 1 and args[1].isdigit():
         end = int(args[1])
-    result, msg = check_lmt(uid, end - start)
+    result, msg = check_lmt(uid, end - start, gid)
     if result != 0:
         await bot.send(ev, msg)
         return
@@ -208,7 +231,7 @@ async def send_ranking_setu(bot, ev):
         try:
             result_list.append(await bot.send(ev, msg))
         except:
-            print('图片发送失败')
+            print('[ERROR]图片发送失败')
         await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
@@ -218,9 +241,32 @@ async def send_ranking_setu(bot, ev):
             try:
                 await bot.delete_msg(self_id=ev['self_id'], message_id=result['message_id'])
             except:
-                print('撤回失败')
+                print('[ERROR]撤回失败')
             await asyncio.sleep(1)
 
-@sv.scheduled_job('interval', minutes=30)
-async def job():
+@sv.on_prefix('提取图片')
+async def get_spec_setu(bot,ev):
+    uid = ev['user_id']
+    gid = ev['group_id']
+    args = ev.message.extract_plain_text().split()
+    try:
+        args = args[0]
+    except:
+        await bot.send(ev,'请在命令之后提供p站id哦~')
+        return
+    args = str(args)
+    if len(args) == 8:
+        if type(get_spec_image(args)) == tuple:
+            msg,msg2 = get_spec_image(args)
+            await bot.send(ev,msg2)
+            await bot.send(ev,msg)
+        else:
+            msg = get_spec_image(args)
+            await bot.send(ev, msg)
+    else:
+        await bot.send(ev, 'p站id无效,应为8位数字id哦~')
+        return
+
+@sv.scheduled_job('interval', minutes=10)
+async def fetch_setu_process():
     await fetch_process()

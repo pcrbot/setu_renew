@@ -1,7 +1,9 @@
 {
     "base": {
         "daily_max": 10,
-        "freq_limit": 10
+        "freq_limit": 10,
+        "whitelistmode": false,
+        "blacklistmode": false
     },
     "default": {
         "withdraw": 0,
@@ -11,11 +13,12 @@
     },
     "lolicon": {
         "mode": 2,
-        "apikey": "",
+        "apikey": [""],
         "r18": true,
         "use_thumb": false,
         "pixiv_direct": false,
-        "pixiv_proxy": ""
+        "pixiv_proxy": "",
+        "lolicon_proxy": ""
     },
     "acggov": {
         "mode": 2,

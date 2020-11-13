@@ -10,6 +10,7 @@ import base64
 import json
 import os
 from hoshino import R
+import hoshino
 from PIL import Image
 from .config import get_config
 
@@ -48,7 +49,7 @@ def load_native_info(sub_dir):
                 info[uid] = ','.join(d['tags'])
         except:
             pass
-    print('read', len(info), 'setu from', sub_dir)
+    print('[INFO]read', len(info), 'setu from', sub_dir)
     return info
 
 def generate_image_struct():
@@ -157,7 +158,7 @@ async def query_search(keyword):
             pass
         if image['url']:
             image_list.append(image)
-    print('搜索结果数量', len(data['illusts']))
+    print('[INFO]搜索结果数量', len(data['illusts']))
     return image_list
 
 
@@ -213,7 +214,7 @@ async def query_ranking_setu(number: int) -> (int, str):
     return image
 
 async def download_acggov_image(url: str):
-    print('acggov downloading image', url)
+    print('[INFO]acggov downloading image', url)
     try:
         async with aiohttp.ClientSession(headers=acggov_headers) as session:
             async with session.get(url, proxy=get_config('acggov', 'acggov_proxy')) as resp:
@@ -227,12 +228,12 @@ async def download_acggov_image(url: str):
                 roiImg.save(imgByteArr, format='JPEG')
                 return imgByteArr.getvalue()
     except :
-        print('download image failed')
+        print('[ERROR]download image failed')
         #traceback.print_exc()
     return None
 
 async def download_pixiv_image(url: str, id):
-    print('acggov downloading pixiv image', url)
+    print('[INFO]acggov downloading pixiv image', url)
     headers = {
         'referer': f'https://www.pixiv.net/member_illust.php?mode=medium&illust_id={id}'
         }
@@ -249,7 +250,7 @@ async def download_pixiv_image(url: str, id):
                 roiImg.save(imgByteArr, format='JPEG')
                 return imgByteArr.getvalue()
     except :
-        print('download image failed')
+        print('[ERROR]download image failed')
         #traceback.print_exc()
     return None
 
@@ -431,13 +432,13 @@ async def acggov_get_ranking_setu(number: int) -> (int, str):
 async def acggov_fetch_process():
     global ranking_date
     if get_config('acggov', 'mode') == 2:
-        print('fetch acggov setu')
+        print('[INFO]fetch acggov setu')
         for _ in range(10):
             await get_setu_online()
 
         date = (datetime.datetime.now() + datetime.timedelta(days=-2)).strftime("%Y-%m-%d")
         if date != ranking_date:
-            print('fetch acggov ranking setu')
+            print('[INFO]fetch acggov ranking setu')
             for i in range(25):
                 await acggov_get_ranking_setu(i)
             ranking_date = date

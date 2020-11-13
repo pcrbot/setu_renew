@@ -40,7 +40,7 @@
   - `acggov` : `on / off` 是否开启acggov模块
   - `lolicon` : `on / off` 是否开启lolicon模块
   - `lolicon_r18` : `on / off` 是否开启lolicon_r18模块
-  - `withdraw` : `n` 发出的图片在n秒后撤回,设置为0表示不撤回. 如果撤回功能异常, 请关闭bot宿主程序的分片发送功能.
+  - `withdraw` : `n` 发出的图片在n秒后撤回,设置为0表示不撤回
 - `setu get [群号]` : 查看本群或指定群的模块开启状态
 - `setu fetch` :  手动从api拉取一批图片存入本地仓库(插件每半小时会自动拉取一次)
 - `setu warehouse` : 查询本地仓库图片数量
