@@ -10,9 +10,9 @@ import base64
 import json
 import os
 from hoshino import R
-import hoshino
 from PIL import Image
 from .config import get_config
+import hoshino
 
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

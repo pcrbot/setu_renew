@@ -1,10 +1,13 @@
 import hoshino
 import asyncio
 from .base import *
-from .config import get_config, get_group_config, load_config, set_group_config,group_list_check, set_group_list
+from .config import get_config, get_group_config, get_group_info, load_config, set_group_config,group_list_check, set_group_list
 
 HELP_MSG = '''
-请见网页帮助
+来 [num] 张 [keyword] 涩/色/瑟图 : 来num张keyword的涩图(不指定数量与关键字发送一张随机涩图)
+涩/色/瑟图 : 发送一张随机涩图
+本日涩图排行榜 [page] : 获取[第page页]p站排行榜(需开启acggov模块)
+看涩图 [n] 或 [start end] : 获取p站排行榜[第n名/从start名到end名]色图(需开启acggov模块)
 '''
 sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG)
 
@@ -91,26 +94,26 @@ async def send_setu(bot, ev):
     elif args[0] == "重载":
         load_config()
         msg = '重载完成'
-    elif args[0] == "黑名单" and len(args) == 3:# setu 黑名单 新增/删除 gid
+    elif args[0] == "黑名单" and len(args) == 3:# setu 黑名单 新增/删除 gid(一次只能提供一个)
         mode = 0 if args[1] == "新增" else 1
         group_id = args[2]
-        statuscode = set_group_list(group_id,1,mode)
+        statuscode, failedgid = set_group_list(group_id,1,mode)
         if statuscode == 403:
             msg = '无法访问黑白名单'
         elif statuscode == 404:
-            msg = '群不在指定的列表中'
+            msg = f'群{failedgid[0]}不在黑名单中'
         elif statuscode == 401:
             msg = f'警告！黑名单模式未开启！\n成功{args[1]}群{group_id}'
         else:
             msg = f'成功{args[1]}群{group_id}'
-    elif args[0] == '白名单' and len(args) == 3:  # setu 白名单 新增/删除 gid
+    elif args[0] == '白名单' and len(args) == 3:  # setu 白名单 新增/删除 gid(一次只能提供一个)
         mode = 0 if args[1] == "新增" else 1
         group_id = args[2]
-        statuscode = set_group_list(group_id,0,mode)
+        statuscode, failedgid = set_group_list(group_id, 0, mode)
         if statuscode == 403:
             msg = '无法访问黑白名单'
         elif statuscode == 404:
-            msg = '群不在指定的列表中'
+            msg = f'群{failedgid[0]}不在白名单中'
         elif statuscode == 402:
             msg = f'警告！白名单模式未开启！\n成功{args[1]}群{group_id}'
         else:
@@ -127,9 +130,10 @@ async def send_search_setu(bot, ev):
     if num:
         try:
             num = int(num)
-            if num > 1:
-                await bot.send(ev,'太贪心辣,一次只能要一份涩图哦~')
-                num = 1
+            max_num = int(get_config('base', 'max_pic_once_send'))
+            if num > max_num:
+                await bot.send(ev, f'太贪心辣,一次只能要{max_num}份涩图哦~')
+                num = max_num
             else:
                 num = int(num.strip())
         except:
@@ -270,3 +274,18 @@ async def get_spec_setu(bot,ev):
 @sv.scheduled_job('interval', minutes=10)
 async def fetch_setu_process():
     await fetch_process()
+
+
+#@sv.on_fullmatch('test')
+@sv.scheduled_job('interval', hours=12)
+async def set_ban_list():
+    ban_list = []
+    group_info = await get_group_info(info_type='member_count')
+    for group in group_info:
+        group_info[group] = int(group_info[group])
+        if group_info[group] >= int(get_config('base', 'ban_if_group_num_over')):
+            ban_list.append(group)
+        else:
+            pass
+    set_group_list(ban_list,1,0)
+    
