@@ -6,6 +6,7 @@ import aiohttp
 import random
 import string
 import base64
+import re
 from hoshino import R
 from .config import get_config, get_group_config
 from .acggov import acggov_init, acggov_fetch_process, acggov_get_setu, acggov_search_setu, acggov_get_ranking_setu, acggov_get_ranking, get_setu_native
@@ -38,12 +39,17 @@ def add_salt(data):
     return data + bytes(salt, encoding="utf8")
 
 def format_setu_msg(image,method=0):
-    base64_str = f"base64://{base64.b64encode(add_salt(image['data'])).decode()}"
+    rule = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
+    data = (rule.search(str(image['data'])))
+    if data:
+        base64_str = f"base64://{base64.b64encode(add_salt(image['data'])).decode()}"
+        msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}\n[CQ:image,file={base64_str}]'
+    else:
+        msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{image["data"]}]'
     if method == 1:
-        msg = f'「{image["title"]}」/「{image["author"]}」\n[CQ:image,file={base64_str}]'
+        msg = f'「{image["title"]}」/「{image["author"]}」\n[CQ:image,file=file:///{image["data"]}]'
         msg2 = f'如果看不到原图的话,在这里查看哦~\n{image["url"]}'
         return msg, msg2
-    msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}\n[CQ:image,file={base64_str}]'
     return msg
 
 async def get_setu(group_id):

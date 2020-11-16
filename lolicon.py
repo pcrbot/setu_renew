@@ -109,7 +109,7 @@ async def download_image(url: str):
     print('[INFO]lolicon downloading image', url)
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+            async with session.get(url, proxy=get_config('lolicon', 'lolicon_proxy')) as resp:
                 data = await resp.read()
                 #转jpg
                 byte_stream = io.BytesIO(data)
@@ -164,6 +164,7 @@ def save_image(image):
     }
     with open(res.path, 'w', encoding='utf8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
+    
 
 async def get_setu_online(num, r18 = 0, keyword = None):
     image_list = await query_setu(r18 = r18, keyword = keyword)
@@ -180,11 +181,10 @@ async def get_setu_online(num, r18 = 0, keyword = None):
         #检查本地是否存在该图片
         path = f'setu_mix/lolicon/{image["id"]}.jpg'
         if image['r18']:
-            path = f'setu_mix/lolicon_r18/{image["id"]}'
+            path = f'setu_mix/lolicon_r18/{image["id"]}.jpg'
         res = R.img(path)
         if os.path.exists(res.path):
-            with open(res.path, 'rb') as f:
-                image['data'] = f.read()
+                image['data'] = res.path
                 image['native'] = True
         else:
             if get_config('lolicon', 'pixiv_direct'):
@@ -194,6 +194,7 @@ async def get_setu_online(num, r18 = 0, keyword = None):
             image['native'] = False
             if image['data'] and get_config('lolicon', 'mode') == 2:
                 save_image(image)
+                image['data'] = res.path
         if image['data']:
             valid_list.append(image)
         if len(valid_list) >= num:
@@ -227,8 +228,7 @@ def get_setu_native(r18 = 0, uid = 0):
     path += f'/{uid}'
     res = R.img(path)
     try:
-        with open(res.path + '.jpg', 'rb') as f:
-            image['data'] = f.read()
+        image['data'] = res.path+'.jpg'
         with open(res.path + '.json', encoding='utf8') as f:
             d = json.load(f)
             if 'title' in d:

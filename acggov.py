@@ -277,8 +277,7 @@ async def get_setu_online():
     path = f'setu_mix/acggov/{image["id"]}.jpg'
     res = R.img(path)
     if os.path.exists(res.path):
-        with open(res.path, 'rb') as f:
-            image['data'] = f.read()
+            image['data'] = res.path
             image['native'] = True
     else:
         image['data'] = await download_acggov_image(image['url'])
@@ -289,6 +288,7 @@ async def get_setu_online():
             return image
         if get_config('acggov', 'mode') == 2:
             save_image(image)
+            image['data'] = res.path
     return image
 
 def get_setu_native(uid = 0):
@@ -313,8 +313,7 @@ def get_setu_native(uid = 0):
     path = f'setu_mix/acggov/{uid}'
     res = R.img(path)
     try:
-        with open(res.path + '.jpg', 'rb') as f:
-            image['data'] = f.read()
+        image['data'] = res.path+'.jpg'
         with open(res.path + '.json', encoding='utf8') as f:
             d = json.load(f)
             for k,v in d.items():
@@ -333,9 +332,8 @@ async def search_setu_online(keyword, num):
         path = f'setu_mix/acggov/{image["id"]}.jpg'
         res = R.img(path)
         if os.path.exists(res.path):
-            with open(res.path, 'rb') as f:
-                image['data'] = f.read()
-                image['native'] = True
+            image['data'] = res.path
+            image['native'] = True
         else:
             url = image['url']
             if get_config('acggov', 'pixiv_direct'):
@@ -347,6 +345,7 @@ async def search_setu_online(keyword, num):
             if image['data']:
                 if get_config('acggov', 'mode') == 2:
                     save_image(image)
+                    image['data'] = res.path
         if image['data']:
             valid_list.append(image)
         if len(valid_list) >= num:
@@ -409,8 +408,7 @@ async def acggov_get_ranking_setu(number: int) -> (int, str):
     path = f'setu_mix/acggov/{image["id"]}.jpg'
     res = R.img(path)
     if os.path.exists(res.path):
-        with open(res.path, 'rb') as f:
-            image['data'] = f.read()
+            image['data'] = res.path
             image['native'] = True
     else:
         url = image['url']
@@ -425,6 +423,7 @@ async def acggov_get_ranking_setu(number: int) -> (int, str):
             image['title'] = '图片下载失败'
         elif get_config('acggov', 'mode') == 2:
             save_image(image)
+            image['data'] = res.path
 
     return image
         

@@ -13,7 +13,9 @@ config = {
         "daily_max": 20,
         "freq_limit": 300,
         "whitelistmode": False,
-        "blacklistmode": False
+        "blacklistmode": False,
+        "ban_if_group_num_over": 3000,
+        "max_pic_once_send": 1
     },
     "default": {
         "withdraw" : 45,
@@ -22,8 +24,8 @@ config = {
         "acggov": False    
     },
     "lolicon": {
-        "mode": 1,
-        "apikey": "",
+        "mode": 2,
+        "apikey": [""],
         "r18": False,
         "use_thumb": True,
         "pixiv_direct": False,

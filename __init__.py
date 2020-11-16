@@ -1,6 +1,7 @@
 import hoshino
 import asyncio
 from .base import *
+from nonebot import scheduler
 from .config import get_config, get_group_config, get_group_info, load_config, set_group_config,group_list_check, set_group_list
 
 HELP_MSG = '''
@@ -156,6 +157,7 @@ async def send_search_setu(bot, ev):
                 result_list.append(await bot.send(ev, msg))
             except:
                 print('[ERROR]图片发送失败')
+                await bot.send(ev,f'涩图太涩,发不出去惹...')
             await asyncio.sleep(1)
     else:
         keyword = keyword.strip()
@@ -172,6 +174,7 @@ async def send_search_setu(bot, ev):
                     result_list.append(await bot.send(ev, msg))
                 except:
                     print('[ERROR]图片发送失败')
+                    await bot.send(ev, f'涩图太涩,发不出去惹...')
                 await asyncio.sleep(1)
         else:
             for msg in msg_list:
@@ -179,6 +182,7 @@ async def send_search_setu(bot, ev):
                     result_list.append(await bot.send(ev, msg))
                 except:
                     print('[ERROR]图片发送失败')
+                    await bot.send(ev, f'涩图太涩,发不出去惹...')
                 await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
@@ -236,6 +240,7 @@ async def send_ranking_setu(bot, ev):
             result_list.append(await bot.send(ev, msg))
         except:
             print('[ERROR]图片发送失败')
+            await bot.send(ev, f'涩图太涩,发不出去惹...')
         await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
@@ -277,7 +282,7 @@ async def fetch_setu_process():
 
 
 #@sv.on_fullmatch('test')
-@sv.scheduled_job('interval', hours=12)
+@scheduler.scheduled_job('cron', hour=4, minute=40)
 async def set_ban_list():
     ban_list = []
     group_info = await get_group_info(info_type='member_count')

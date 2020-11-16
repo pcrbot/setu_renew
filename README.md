@@ -4,6 +4,23 @@
 
 **本项目基于@zyujs的[setu_mix](https://github.com/zyujs/setu_mix)改进而来。**
 
+## 主要改进
+
+- [x] 加入了群黑白名单功能
+- [x] 加入了群人数限制功能
+- [x] 代理全覆盖，从查询到获取到下载
+- [x] 负载均衡，并可以智能选择仍有额度的key(需要多个lolicon key)
+- [x] 搜索/发送/下载失败时均会发送提示，防止出现指令无响应或无下文的假象
+- [x] 搜索无结果时可以随机发送一份涩图
+- [x] 优化发送消息结构
+- [x] 优化发图流程，本地图片使用file协议发送
+- [x] 可根据图片pid提取图片，若本地有则会直接发送，否则会给出原图链接
+- [x] 优化触发指令，将随机涩图的指令与指定关键词的指令合并
+- [x] 支持自定义一人一次最多要的涩图数量
+- [x] 中文化管理指令
+- [x] 增加配置文件热重载的指令
+- [ ] 成员黑名单
+
 ## 注意事项
 
 本插件图片存放位置为 `RES_DIR/setu_mix` , 使用前请保证HoshinoBot的 `RES_DIR` 已经正确配置.
@@ -14,7 +31,7 @@
 
 1. 在HoshinoBot的插件目录modules下clone本项目 `git clone https://github.com/corvo007/setu_mix.git`
 1. 将本插件目录下的配置文件模板 `config.template.json` 复制并重命名为 `config.json` , 修改该配置文件设置自己的apikey和其他选项, 除apikey以外都可保持默认值.
-1. 在 `config/__bot__.py`的模块列表里加入 `setu`
+1. 在 `config/__bot__.py`的模块列表里加入 `setu_renew`
 1. 重启HoshinoBot
 
 ## 配置文件详细说明
@@ -36,7 +53,7 @@
   - `use_thumb` : 是否发送大小更小的图
   - `pixiv_direct` : 是否通过代理访问pixiv, 请在下方配置代理
   - `pixiv_proxy` : 访问pixiv的代理 **(推荐使用`https://i.pixiv.cat`)**
-  - `lolicon_proxy` : 访问lolicon的代理, 不需要请留空.
+  - `lolicon_proxy` : 访问lolicon&上方代理的代理, 不需要请留空.
 
 ## 指令说明
 
@@ -60,6 +77,10 @@
 - `setu 仓库` : 查询本地仓库图片数量
 - `setu 重载` : 热重载配置文件
 - `setu 黑/白名单 新增/删除 群号` : 修改黑白名单
+
+## 已知问题
+
+使用纯在线模式时，采用的是base64方式发送，而此方法无法发送过大的图片，故有较大概率无法发送问题
 
 ## 开源协议
 
