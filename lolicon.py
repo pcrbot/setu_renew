@@ -77,7 +77,6 @@ async def query_setu(r18 = 0, keyword=None):
         params['proxy'] = 'disable'
 
     try:
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params, proxy=get_config('lolicon', 'lolicon_proxy')) as resp:
                 data = await resp.json(content_type='application/json')
