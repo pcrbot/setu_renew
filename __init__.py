@@ -260,7 +260,7 @@ async def get_spec_setu(bot, ev):
     try:
         args = args[0]
     except:
-        await bot.send(ev,'请在命令后接p站id哦~')
+        await bot.send(ev,'请在命令之后提供p站id哦~')
         return
     args = str(args)
     if len(args) == 8:
