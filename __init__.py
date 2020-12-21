@@ -260,7 +260,7 @@ async def get_spec_setu(bot, ev):
     try:
         args = args[0]
     except:
-        await bot.send(ev,'请后接p站id')
+        await bot.send(ev,'请在命令后接p站id哦~')
         return
     args = str(args)
     if len(args) == 8:
@@ -270,7 +270,7 @@ async def get_spec_setu(bot, ev):
         else:
             await bot.send(ev,msg)
     else:
-        await bot.send(ev, 'p站id无效,应为8位数字id')
+        await bot.send(ev, 'p站id无效,应为8位数字id哦~')
 
 @sv.scheduled_job('interval', minutes=10)
 async def fetch_setu_process():
