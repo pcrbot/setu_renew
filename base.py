@@ -5,14 +5,11 @@ import asyncio
 import aiohttp
 import random
 import string
-import base64
 import re
 from hoshino import R
 from .config import get_config, get_group_config
 from .acggov import acggov_init, acggov_fetch_process, acggov_get_setu, acggov_search_setu, acggov_get_ranking_setu, acggov_get_ranking, get_setu_native
-from .lolicon import lolicon_init, lolicon_get_setu,lolicon_fetch_process, lolicon_search_setu
-from .lolicon import get_setu_native as lolicon_get_setu_native
-
+from .lolicon import lolicon_init, lolicon_get_setu,lolicon_fetch_process, lolicon_search_setu, get_setu_native
 
 def check_path():
     state = {}
@@ -26,32 +23,23 @@ def check_path():
 check_path()
 
 def get_spec_image(id):
-    image = lolicon_get_setu_native(0,id)
-    if not image["data"]:
-        imageurl = f'没有在本地找到这张图片呢~\n原图地址:https://pixiv.lancercmd.cc/{id}'
-        return imageurl
-    image = format_setu_msg(image,1)
-    return image
-
-
-def add_salt(data):
-    salt = ''.join(random.sample(string.ascii_letters + string.digits, 6))
-    return data + bytes(salt, encoding="utf8")
-
-def format_setu_msg(image,method=0):
-    rule = re.compile('^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$')
-    data = (rule.search(str(image['data'])))
-    if data:
-        base64_str = f"base64://{base64.b64encode(add_salt(image['data'])).decode()}"
-        msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}\n[CQ:image,file={base64_str}]'
+    image = get_setu_native(0, id)
+    if not image:
+        return None
     else:
-        msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{image["data"]}]'
-    if method == 1:
-        msg = f'「{image["title"]}」/「{image["author"]}」\n[CQ:image,file=file:///{image["data"]}]'
-        msg2 = f'如果看不到原图的话,在这里查看哦~\n{image["url"]}'
-        return msg, msg2
-    return msg
+        image = format_setu_msg(image)
+        return image
 
+def format_setu_msg(image):
+    try:
+        if image["title"]:
+            msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{image["data"]}]'
+            return msg
+        else:
+            return None
+    except(TypeError):
+        return None
+    
 async def get_setu(group_id):
     source_list = []
     if get_group_config(group_id, 'lolicon'):

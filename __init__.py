@@ -7,6 +7,7 @@ from .config import get_config, get_group_config, get_group_info, load_config, s
 HELP_MSG = '''
 来 [num] 张 [keyword] 涩/色/瑟图 : 来num张keyword的涩图(不指定数量与关键字发送一张随机涩图)
 涩/色/瑟图 : 发送一张随机涩图
+提取图片pid ： 获取指定id的p站图片，没有时发送链接
 本日涩图排行榜 [page] : 获取[第page页]p站排行榜(需开启acggov模块)
 看涩图 [n] 或 [start end] : 获取p站排行榜[第n名/从start名到end名]色图(需开启acggov模块)
 '''
@@ -254,9 +255,7 @@ async def send_ranking_setu(bot, ev):
             await asyncio.sleep(1)
 
 @sv.on_prefix('提取图片')
-async def get_spec_setu(bot,ev):
-    uid = ev['user_id']
-    gid = ev['group_id']
+async def get_spec_setu(bot, ev):
     args = ev.message.extract_plain_text().split()
     try:
         args = args[0]
@@ -265,16 +264,13 @@ async def get_spec_setu(bot,ev):
         return
     args = str(args)
     if len(args) == 8:
-        if type(get_spec_image(args)) == tuple:
-            msg,msg2 = get_spec_image(args)
-            await bot.send(ev,msg2)
-            await bot.send(ev,msg)
+        msg = get_spec_image(args)
+        if not msg:
+            await bot.send(ev, f'没有在本地找到这张图片/不支持r18图片的提取\n原图地址:https://pixiv.lancercmd.cc/{args}')
         else:
-            msg = get_spec_image(args)
-            await bot.send(ev, msg)
+            await bot.send(ev,msg)
     else:
         await bot.send(ev, 'p站id无效,应为8位数字id哦~')
-        return
 
 @sv.scheduled_job('interval', minutes=10)
 async def fetch_setu_process():
