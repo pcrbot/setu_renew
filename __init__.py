@@ -124,7 +124,8 @@ async def send_setu(bot, ev):
         msg = '无效参数'
     await bot.send(ev, msg)
 
-@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給](?P<num>.?)[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
+
+@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給](?P<num>\d+)[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
 async def send_search_setu(bot, ev):
     uid = ev['user_id']
     gid = ev['group_id']
@@ -137,7 +138,7 @@ async def send_search_setu(bot, ev):
                 await bot.send(ev, f'太贪心辣,一次只能要{max_num}份涩图哦~')
                 num = max_num
             else:
-                num = int(num.strip())
+                pass
         except:
             num = 1
     else:
