@@ -33,7 +33,7 @@ def get_spec_image(id):
 def format_setu_msg(image):
     try:
         if image["title"]:
-            msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{image["data"]}]'
+            msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{os.path.abspath(image["data"])}]'
             return msg
         else:
             return None

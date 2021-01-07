@@ -23,7 +23,7 @@ ranking_date = None
 
 acggov_headers = {
     'token': get_config('acggov', 'apikey'),
-    'referer': 'https://www.acg-gov.com/'
+    'referer': 'https://api.acgmx.com/'
     }
 
 native_info = {}
