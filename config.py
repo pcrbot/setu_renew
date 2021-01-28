@@ -5,59 +5,19 @@ import random
 import traceback
 import datetime
 import nonebot
-
 from requests import api
 
-config = {
-    "base": {
-        "daily_max": 20,
-        "freq_limit": 300,
-        "whitelistmode": False,
-        "blacklistmode": False,
-        "ban_if_group_num_over": 3000,
-        "max_pic_once_send": 1
-    },
-    "default": {
-        "withdraw" : 45,
-        "lolicon": True,
-        "lolicon_r18": False,
-        "acggov": False    
-    },
-    "lolicon": {
-        "mode": 2,
-        "apikey": [""],
-        "r18": False,
-        "use_thumb": True,
-        "pixiv_direct": False,
-        "pixiv_proxy": "https://i.pixiv.cat",
-        "lolicon_proxy": ""
-    },
-    "acggov": {
-        # 0禁用 1无缓存 2有缓存在线 3有缓存离线
-        "mode": 2,
-        "apikey": "",
-        "ranking_mode": "daily",
-        "per_page": 25,
-        "use_thumb": True,
-        "pixiv_direct": False,
-        "acggov_proxy": "",
-        "pixiv_proxy": "https://i.pixiv.cat",
-    }
-}
 
-# 源 0 关闭 1 lolicon 2 acggov 3 组合
-# lolicon_r18 0 非18 1 纯r18 2 混合
+cfgpath = os.path.join(os.path.dirname(__file__), 'config.json')
 grouplistpath = os.path.join(os.path.dirname(__file__), 'grouplist.json')
+groupconfigpath = os.path.join(os.path.dirname(__file__), 'groupconfig.json')
 group_config = {}
+config = {}
 invaild_key_dict = {}
-group_list ={
-    "white_list":[
-
-    ],
-    "black_list":[
-
-    ]
-}
+group_list ={}
+config = json.load(open(cfgpath, 'r',encoding='utf8'))
+group_list = json.load(open(grouplistpath, 'r', encoding='utf8'))
+group_config = json.load(open(groupconfigpath, 'r', encoding='utf8'))
 
 
 def set_key_invaild(key,time):
@@ -82,44 +42,6 @@ def get_config(key, sub_key):
         return config[key][sub_key]
     return None
 
-def load_config():
-    path = os.path.join(os.path.dirname(__file__), 'config.json')
-    if not os.path.exists(path):
-        return
-    try:
-        with open(path, encoding='utf8') as f:
-            d = json.load(f)
-            if 'base' in d:
-                for k, v in d['base'].items():
-                    config['base'][k] = v
-            if 'acggov' in d:
-                for k, v in d['acggov'].items():
-                    config['acggov'][k] = v
-            if 'lolicon' in d:
-                for k, v in d['lolicon'].items():
-                    config['lolicon'][k] = v
-    except:
-        traceback.print_exc()
-load_config()
-
-def load_group_list():
-    try:
-        with open(grouplistpath, 'r', encoding='utf8') as f:
-            fp = json.load(f)
-            if 'white_list' in fp:
-                for i in fp['white_list']:
-                    group_list["white_list"].append(str(i))
-            if 'black_list' in fp:
-                for i in fp['black_list']:
-                    group_list["black_list"].append(str(i))
-    except:
-        try:
-            with open(grouplistpath, 'w') as fp:
-                json.dump(group_list, fp, ensure_ascii=False, indent=2)
-        except:
-            print('[ERROR]读取黑白名单失败，请检查插件目录的读写权限。')
-            traceback.print_exc()
-
 def group_list_check(gid):
     '''
     响应值:\n
@@ -141,9 +63,6 @@ def group_list_check(gid):
             return 0
     else:
         return 0
-
-if get_config('base', 'blacklistmode') or get_config('base', 'whitelistmode'):
-    load_group_list()
 
 def set_group_list(gid, _list, mode):
     '''
@@ -212,30 +131,14 @@ def set_group_list(gid, _list, mode):
             return 0, failed_gids
     except:
         return 403, failed_gids
-
        
 def get_api_num():
     return int(len(config["lolicon"]["apikey"]))
 
-def load_group_config():
-    path = os.path.join(os.path.dirname(__file__), 'group_config.json')
-    if not os.path.exists(path):
-        return
-    try:
-        with open(path, encoding='utf8') as f:
-            d = json.load(f)
-            for k,v in d.items():
-                group_config[k] = v
-    except:
-        traceback.print_exc()
-load_group_config()
-
 def get_group_config(group_id, key):
     group_id = str(group_id)
     if group_id not in group_config:
-        group_config[group_id] = {}
-        for k, v in config['default'].items():
-            group_config[group_id][k] = v
+        return config['default'][key]
     if key in group_config[group_id]:
         return group_config[group_id][key]
     else:
@@ -248,9 +151,8 @@ def set_group_config(group_id, key, value):
         for k, v in config['default'].items():
             group_config[group_id][k] = v
     group_config[group_id][key] = value
-    path = os.path.join(os.path.dirname(__file__), 'group_config.json')
     try:
-        with open(path, 'w', encoding='utf8') as f:
+        with open(groupconfigpath, 'w', encoding='utf8') as f:
             json.dump(group_config, f, ensure_ascii=False, indent=2)
     except:
         traceback.print_exc()
@@ -298,4 +200,3 @@ async def get_group_list_all():
     for sid in self_ids:
         group_list = await bot.get_group_list(self_id=sid)
     return group_list
-
