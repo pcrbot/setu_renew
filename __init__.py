@@ -1,8 +1,9 @@
 import hoshino
 import asyncio
-from .base import *
+import json
+import traceback
+import os
 from nonebot import scheduler
-from .config import get_config, get_group_config, get_group_info, load_config, set_group_config,group_list_check, set_group_list
 
 HELP_MSG = '''
 来 [num] 张 [keyword] 涩/色/瑟图 : 来num张keyword的涩图(不指定数量与关键字发送一张随机涩图)
@@ -12,6 +13,87 @@ HELP_MSG = '''
 看涩图 [n] 或 [start end] : 获取p站排行榜[第n名/从start名到end名]色图(需开启acggov模块)
 '''
 sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG)
+
+config_default = {
+    "base": {
+        "daily_max": 20, #每日上限次数
+        "freq_limit": 300, #频率限制
+        "whitelistmode": False, #白名单模式开关
+        "blacklistmode": False, #黑名单模式开关
+        "ban_if_group_num_over": 3000, #字面意思
+        "max_pic_once_send": 1 #一次最大发送图片数量
+    },
+    "default": {
+        "withdraw" : 45, #撤回时间，单位秒
+        "lolicon": True, #lolicon模块开关
+        "lolicon_r18": False, #lolicon_r18模块开关
+        "acggov": False #acggov模块开关
+    },
+    "lolicon": {
+        "mode": 2, #0禁用 1无缓存 2有缓存在线 3有缓存离线
+        "apikey": [""], #lolicon API，可多个
+        "r18": False, #R18图开关
+        "use_thumb": True, #选取小图开关
+        "pixiv_direct": False, #是否直连pixiv
+        "pixiv_proxy": "https://i.pixiv.cat", #pixiv代理地址
+        "lolicon_proxy": "" #lolicon代理地址
+    },
+    "acggov": {
+        "mode": 2, #0禁用 1无缓存 2有缓存在线 3有缓存离线
+        "apikey": "", #acggov API
+        "ranking_mode": "daily", #排行榜模式
+        "per_page": 25, #一米哇甘耐
+        "use_thumb": True, #选取小图开关
+        "pixiv_direct": False, #是否直连pixiv
+        "pixiv_proxy": "https://i.pixiv.cat", #pixiv代理地址
+        "acggov_proxy": "" #acggov代理地址
+    }
+}
+group_list_default ={
+    "white_list":[
+
+    ],
+    "black_list":[
+
+    ]
+}
+groupconfig_default = {}
+
+#Check config if exist
+pathcfg = os.path.join(os.path.dirname(__file__), 'config.json')
+if not os.path.exists(pathcfg):
+    try:
+        with open(pathcfg, 'w') as cfgf:
+            json.dump(config_default, cfgf, ensure_ascii=False, indent=2)
+            print('[WARNING]未找到配置文件，已根据默认配置模板创建，请打开插件目录内config.json查看和修改。')
+    except:
+        print('[ERROR]创建配置文件失败，请检查插件目录的读写权限及是否存在config.json。')
+        traceback.print_exc()
+
+#check group list if exist
+glpath = os.path.join(os.path.dirname(__file__), 'grouplist.json')
+if not os.path.exists(glpath):
+    try:
+        with open(glpath, 'w') as cfggl:
+            json.dump(group_list_default, cfggl, ensure_ascii=False, indent=2)
+            print('[WARNING]未找到黑白名单文件，已根据默认黑白名单模板创建。')
+    except:
+        print('[ERROR]创建黑白名单文件失败，请检查插件目录的读写权限。')
+        traceback.print_exc()
+
+#check group config if exist
+gpcfgpath = os.path.join(os.path.dirname(__file__), 'groupconfig.json')
+if not os.path.exists(gpcfgpath):
+    try:
+        with open(gpcfgpath, 'w') as gpcfg:
+            json.dump(groupconfig_default, gpcfg, ensure_ascii=False, indent=2)
+            print('[WARNING]未找到群个体设置文件，已创建。')
+    except:
+        print('[ERROR]创建群个体设置文件失败，请检查插件目录的读写权限。')
+        traceback.print_exc()
+
+from .base import *
+from .config import get_config, get_group_config, get_group_info, set_group_config,group_list_check, set_group_list
 
 #设置limiter 
 tlmt = hoshino.util.DailyNumberLimiter(get_config('base', 'daily_max'))
@@ -28,7 +110,7 @@ def check_lmt(uid, num, gid):
     if not tlmt.check(uid):
         return 1, f"您今天已经冲过{get_config('base', 'daily_max')}次了,请明天再来~"
     if num > 1 and (get_config('base', 'daily_max') - tlmt.get_num(uid)) < num:
-            return 1, f"您今天的剩余次数为{get_config('base', 'daily_max') - tlmt.get_num(uid)}次,已不足{num}次,请冲少点(恼)!"
+            return 1, f"您今天的剩余次数为{get_config('base', 'daily_max') - tlmt.get_num(uid)}次,已不足{num}次,请少冲点(恼)!"
     if not flmt.check(uid):
         return 1, f'您冲的太快了,{round(flmt.left_time(uid))}秒后再来吧~'
     #tlmt.increase(uid,num)
@@ -159,7 +241,7 @@ async def send_search_setu(bot, ev):
                 result_list.append(await bot.send(ev, msg))
             except:
                 print('[ERROR]图片发送失败')
-                await bot.send(ev,f'涩图太涩,发不出去惹...')
+                await bot.send(ev,f'涩图太涩,发不出去力...')
             await asyncio.sleep(1)
     else:
         keyword = keyword.strip()
@@ -176,7 +258,7 @@ async def send_search_setu(bot, ev):
                     result_list.append(await bot.send(ev, msg))
                 except:
                     print('[ERROR]图片发送失败')
-                    await bot.send(ev, f'涩图太涩,发不出去惹...')
+                    await bot.send(ev, f'涩图太涩,发不出去力...')
                 await asyncio.sleep(1)
         else:
             for msg in msg_list:
@@ -184,7 +266,7 @@ async def send_search_setu(bot, ev):
                     result_list.append(await bot.send(ev, msg))
                 except:
                     print('[ERROR]图片发送失败')
-                    await bot.send(ev, f'涩图太涩,发不出去惹...')
+                    await bot.send(ev, f'涩图太涩,发不出去力...')
                 await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
@@ -242,7 +324,7 @@ async def send_ranking_setu(bot, ev):
             result_list.append(await bot.send(ev, msg))
         except:
             print('[ERROR]图片发送失败')
-            await bot.send(ev, f'涩图太涩,发不出去惹...')
+            await bot.send(ev, f'涩图太涩,发不出去力...')
         await asyncio.sleep(1)
     tlmt.increase(uid, len(result_list))
     second = get_group_config(gid, "withdraw")
@@ -290,4 +372,3 @@ async def set_ban_list():
         else:
             pass
     set_group_list(ban_list,1,0)
-    
