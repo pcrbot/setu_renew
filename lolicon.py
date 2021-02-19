@@ -7,7 +7,6 @@ import io
 import random
 import datetime
 from PIL import Image
-from peewee import Proxy
 from hoshino import R
 from .config import get_config,get_api_num, key_vaildable_query,set_key_invaild
 import hoshino
