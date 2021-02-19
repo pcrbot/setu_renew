@@ -12,7 +12,7 @@ HELP_MSG = '''
 本日涩图排行榜 [page] : 获取[第page页]p站排行榜(需开启acggov模块)
 看涩图 [n] 或 [start end] : 获取p站排行榜[第n名/从start名到end名]色图(需开启acggov模块)
 '''
-sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG)
+sv = hoshino.Service('涩图', bundle='pcr娱乐', help_=HELP_MSG)
 
 config_default = {
     "base": {
@@ -207,7 +207,7 @@ async def send_setu(bot, ev):
     await bot.send(ev, msg)
 
 
-@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給](?P<num>[1-9]\d*)[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
+@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給]((?P<num>\d+)|(?:.*))[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
 async def send_search_setu(bot, ev):
     uid = ev['user_id']
     gid = ev['group_id']
