@@ -31,7 +31,7 @@
 
 ## 安装方法
 
-1. 在HoshinoBot的插件目录modules下clone本项目 `git clone https://github.com/corvo007/setu_renew.git`
+1. 在HoshinoBot的插件目录modules下clone本项目 `git clone https://github.com/pcrbot/setu_renew.git`
 1. 将本插件目录下的配置文件模板 `config.template.json` 复制并重命名为 `config.json` , 修改该配置文件设置自己的apikey和其他选项, 除apikey以外都可保持默认值.
 1. 在 `config/__bot__.py`的模块列表里加入 `setu_renew`
 1. 重启HoshinoBot
