@@ -23,7 +23,8 @@ ranking_date = None
 
 acggov_headers = {
     'token': get_config('acggov', 'apikey'),
-    'referer': 'https://api.acgmx.com/'
+    'referer': 'https://www.acgmx.com/',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Safari/537.36'
     }
 
 native_info = {}
@@ -69,7 +70,7 @@ async def query_ranking(date: str, page: int) -> dict:
         ranking_list[date] = {}
     if page in ranking_list[date]:
         return ranking_list[date][page]
-    url = f'https://api.acg-gov.com/public/ranking'
+    url = f'https://api.acgmx.com/public/ranking'
     params = {
         'ranking_type': 'illust',
         'mode': get_config('acggov', 'ranking_mode'),
@@ -93,7 +94,7 @@ async def query_setu():
     image = generate_image_struct()
     try:
         async with aiohttp.ClientSession(headers=acggov_headers) as session:
-            async with session.get('https://api.acg-gov.com/public/setu', proxy=get_config('acggov', 'acggov_proxy')) as resp:
+            async with session.get('https://api.acgmx.com/public/setu', proxy=get_config('acggov', 'acggov_proxy')) as resp:
                 data = await resp.json(content_type='application/json')
     except Exception:
         traceback.print_exc()
@@ -121,7 +122,7 @@ async def query_search(keyword):
     data = {}
     image_list = []
     image = generate_image_struct()
-    url = f'https://api.acg-gov.com/public/search'
+    url = f'https://api.acgmx.com/public/search'
     params = {
         'q': keyword,
         'offset': 0,
@@ -185,7 +186,7 @@ async def query_ranking_setu(number: int) -> (int, str):
         image['url'] = data['response'][0]['works'][number]['work']['image_urls']['large']
     else:
         data = {}
-        url = 'https://api.acg-gov.com/illusts/detail'
+        url = 'https://api.acgmx.com/illusts/detail'
         params = {
             'illustId': illust,
             'reduction': 'true',

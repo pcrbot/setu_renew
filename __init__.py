@@ -12,7 +12,7 @@ HELP_MSG = '''
 本日涩图排行榜 [page] : 获取[第page页]p站排行榜(需开启acggov模块)
 看涩图 [n] 或 [start end] : 获取p站排行榜[第n名/从start名到end名]色图(需开启acggov模块)
 '''
-sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG)
+sv = hoshino.Service('setu', bundle='pcr娱乐', help_=HELP_MSG, enable_on_default=False)
 
 config_default = {
     "base": {
@@ -126,9 +126,9 @@ async def send_setu(bot, ev):
 
     msg = ''
     if not is_su:
-        msg = '需要超级用户权限'
+        msg = '需要超级用户权限\n发送"帮助 pcr娱乐"获取操作指令'
     elif len(args) == 0:
-        msg = '无效参数'
+        msg = '无效参数\n发送"帮助 pcr娱乐"获取操作指令'
     elif args[0] == '设置' and len(args) >= 3: #setu set module on [group]
         if len(args) >= 4 and args[3].isdigit():
             gid = int(args[3])
@@ -207,7 +207,7 @@ async def send_setu(bot, ev):
     await bot.send(ev, msg)
 
 
-@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給]((?P<num>\d+)|(?:.*))[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]')
+@sv.on_rex(r'^[色涩瑟][图圖]|[来來发發给給]((?P<num>\d+)|(?:.*))[张張个個幅点點份丶](?P<keyword>.*?)[色涩瑟][图圖]$')
 async def send_search_setu(bot, ev):
     uid = ev['user_id']
     gid = ev['group_id']
@@ -239,6 +239,8 @@ async def send_search_setu(bot, ev):
                 return
             try:
                 result_list.append(await bot.send(ev, msg))
+                img_temp = re.search(r'(?<=///).*jpg',msg).group(0)
+                os.remove(img_temp)
             except:
                 print('[ERROR]图片发送失败')
                 await bot.send(ev,f'涩图太涩,发不出去力...')
@@ -256,6 +258,8 @@ async def send_search_setu(bot, ev):
                     return
                 try:
                     result_list.append(await bot.send(ev, msg))
+                    img_temp = re.search(r'(?<=///).*jpg',msg).group(0)
+                    os.remove(img_temp)
                 except:
                     print('[ERROR]图片发送失败')
                     await bot.send(ev, f'涩图太涩,发不出去力...')
@@ -264,6 +268,8 @@ async def send_search_setu(bot, ev):
             for msg in msg_list:
                 try:
                     result_list.append(await bot.send(ev, msg))
+                    img_temp = re.search(r'(?<=///).*jpg',msg).group(0)
+                    os.remove(img_temp)
                 except:
                     print('[ERROR]图片发送失败')
                     await bot.send(ev, f'涩图太涩,发不出去力...')
@@ -322,6 +328,8 @@ async def send_ranking_setu(bot, ev):
             return
         try:
             result_list.append(await bot.send(ev, msg))
+            img_temp = re.search(r'(?<=///).*jpg',msg).group(0)
+            os.remove(img_temp)
         except:
             print('[ERROR]图片发送失败')
             await bot.send(ev, f'涩图太涩,发不出去力...')
@@ -355,7 +363,7 @@ async def get_spec_setu(bot, ev):
     else:
         await bot.send(ev, 'p站id无效,应为8位数字id哦~')
 
-@sv.scheduled_job('interval', minutes=10)
+@sv.scheduled_job('interval', minutes=30)
 async def fetch_setu_process():
     await fetch_process()
 
