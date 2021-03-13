@@ -6,6 +6,7 @@ import aiohttp
 import random
 import string
 import re
+from PIL import Image
 from hoshino import R
 from .config import get_config, get_group_config
 from .acggov import acggov_init, acggov_fetch_process, acggov_get_setu, acggov_search_setu, acggov_get_ranking_setu, acggov_get_ranking, get_setu_native
@@ -33,7 +34,16 @@ def get_spec_image(id):
 def format_setu_msg(image):
     try:
         if image["title"]:
-            msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{os.path.abspath(image["data"])}]'
+            img_origname=os.path.abspath(image["data"])
+            img_dir=re.search(r'.*/',img_origname).group(0)
+            img_name=str(image["id"])+".jpg"
+            img = Image.open(img_origname)
+            img_src = img.load()
+            pixread = list(img_src[1,2])
+            img.putpixel((1,2),(abs(pixread[0]-1),abs(pixread[1]-1),abs(pixread[2]-1)))
+            img_tempname = img_dir+"tmp_"+img_name
+            img.save(img_tempname)
+            msg = f'「{image["title"]}」/「{image["author"]}」\nPID:{image["id"]}[CQ:image,file=file:///{img_tempname}]'
             return msg
         else:
             return None
