@@ -128,7 +128,7 @@ async def get_ranking_setu(group_id, number: int) -> (int, str):
 
 async def fetch_process():
     tasks = []
-    tasks.append(asyncio.ensure_future(acggov_fetch_process()))
+    #tasks.append(asyncio.ensure_future(acggov_fetch_process()))
     tasks.append(asyncio.ensure_future(lolicon_fetch_process()))
     for task in asyncio.as_completed(tasks):
         await task
