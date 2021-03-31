@@ -104,7 +104,7 @@ async def search_setu(group_id, keyword, num):
 		source_list.append(3)
 	
 	if len(source_list) == 0:
-		return None
+		return []
 	
 	image_list = None
 	msg_list = []
