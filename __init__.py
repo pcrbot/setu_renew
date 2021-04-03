@@ -191,7 +191,7 @@ async def send_setu(bot, ev):
 			value = int(args[2])
 		else:
 			value = None
-		if key and value:
+		if key and value != None:
 			set_group_config(gid, key, value)
 			msg = '设置成功！当前设置值如下:\n'
 			msg += f'群/{gid} : 设置项/{key} = 值/{value}'
