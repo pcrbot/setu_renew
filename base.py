@@ -3,13 +3,14 @@ import base64
 import io
 import os
 import random
+from typing import Tuple
 
 from PIL import Image, ImageDraw
 
 from hoshino import R
 from .acggov import acggov_fetch_process, acggov_get_ranking, acggov_get_ranking_setu, acggov_get_setu, acggov_init, \
 	acggov_search_setu, get_setu_native
-from .config import get_group_config
+from .config import get_config, get_group_config
 from .lolicon import get_setu_native, lolicon_fetch_process, lolicon_get_setu, lolicon_init, lolicon_search_setu
 
 
@@ -127,7 +128,7 @@ async def get_ranking(group_id, page: int = 0):
 	return await acggov_get_ranking(page)
 
 
-async def get_ranking_setu(group_id, number: int) -> (int, str):
+async def get_ranking_setu(group_id, number: int) -> Tuple[int, str]:
 	if not get_group_config(group_id, 'acggov'):
 		return None
 	image = await acggov_get_ranking_setu(number)
@@ -141,8 +142,12 @@ async def get_ranking_setu(group_id, number: int) -> (int, str):
 
 async def fetch_process():
 	tasks = []
-	tasks.append(asyncio.ensure_future(acggov_fetch_process()))
-	tasks.append(asyncio.ensure_future(lolicon_fetch_process()))
+	if get_config('default', 'acggov'):
+		tasks.append(asyncio.ensure_future(acggov_fetch_process()))
+	if get_config('default', 'lolicon') or get_config('default', 'lolicon_r18'):
+		tasks.append(asyncio.ensure_future(lolicon_fetch_process()))
+	if not tasks:
+		return
 	for task in asyncio.as_completed(tasks):
 		await task
 

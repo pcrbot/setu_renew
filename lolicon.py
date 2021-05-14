@@ -303,9 +303,10 @@ async def lolicon_fetch_process():
 	if get_config('lolicon', 'mode') == 2:
 		hoshino.logger.info('[INFO]fetch lolicon setu')
 		await get_setu_online(10, 0)
-		if get_config('lolicon', 'r18'):
-			hoshino.logger.info('[INFO]fetch lolicon r18 setu')
-			await get_setu_online(10, 1)
+		if not get_config('lolicon', 'r18') or not get_config('default', 'lolicon_r18'):
+			return
+		hoshino.logger.info('[INFO]fetch lolicon r18 setu')
+		await get_setu_online(10, 1)
 
 
 def lolicon_init():
