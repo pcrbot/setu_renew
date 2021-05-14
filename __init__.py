@@ -219,7 +219,12 @@ async def send_setu(bot, ev):
 		for k, v in state.items():
 			msg += f'\n{k}源 : {v}张'
 	elif args[0] == "黑名单" and len(args) == 3:  # setu 黑名单 新增/删除 gid(一次只能提供一个)
-		mode = 0 if args[1] == "新增" else 1
+		if args[1] in ["新增", "添加"]:
+			mode = 0 
+		elif args[1] in ["删除", "移除"]:
+			mode = 1
+		else:
+			await bot.finish(ev,"操作错误，应为新增/删除其一")
 		group_id = args[2]
 		statuscode, failedgid = set_group_list(group_id, 1, mode)
 		if statuscode == 403:
@@ -231,7 +236,12 @@ async def send_setu(bot, ev):
 		else:
 			msg = f'成功{args[1]}群{group_id}'
 	elif args[0] == '白名单' and len(args) == 3:  # setu 白名单 新增/删除 gid(一次只能提供一个)
-		mode = 0 if args[1] == "新增" else 1
+		if args[1] in ["新增", "添加"]:
+			mode = 0
+		elif args[1] in ["删除", "移除"]:
+			mode = 1
+		else:
+			await bot.finish(ev, "操作错误，应为新增/删除其一")
 		group_id = args[2]
 		statuscode, failedgid = set_group_list(group_id, 0, mode)
 		if statuscode == 403:
