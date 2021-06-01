@@ -122,8 +122,9 @@ async def download_image(url: str):
 				imgByteArr = io.BytesIO()
 				roiImg.save(imgByteArr, format='JPEG')
 				return imgByteArr.getvalue()
-	except:
-		hoshino.logger.error('[ERROR]download image failed')
+	except Exception as e:
+		hoshino.logger.error(
+            '[ERROR]download image {} failed,error {}'.format(url, e))
 	# traceback.print_exc()
 	return None
 
@@ -145,8 +146,9 @@ async def download_pixiv_image(url: str, id):
 				imgByteArr = io.BytesIO()
 				roiImg.save(imgByteArr, format='JPEG')
 				return imgByteArr.getvalue()
-	except:
-		hoshino.logger.error('[ERROR]download image failed')
+	except Exception as e:
+		hoshino.logger.error(
+            '[ERROR]download image {} failed,error {}'.format(url, e))
 	# traceback.print_exc()
 	return None
 
