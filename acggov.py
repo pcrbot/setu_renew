@@ -84,7 +84,7 @@ async def query_ranking(date: str, page: int) -> dict:
 	data = {}
 	try:
 		async with aiohttp.ClientSession(headers=acggov_headers) as session:
-			async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy')) as resp:
+			async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
 				data = await resp.json(content_type='application/json')
 				ranking_list[date][page] = data
 	except:
@@ -99,7 +99,7 @@ async def query_setu():
 	try:
 		async with aiohttp.ClientSession(headers=acggov_headers) as session:
 			async with session.get('https://api.acgmx.com/public/setu',
-			                       proxy=get_config('acggov', 'acggov_proxy')) as resp:
+			                       proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
 				data = await resp.json(content_type='application/json')
 	except Exception:
 		traceback.print_exc()
@@ -135,7 +135,7 @@ async def query_search(keyword):
 	}
 	try:
 		async with aiohttp.ClientSession(headers=acggov_headers) as session:
-			async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy')) as resp:
+			async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
 				data = await resp.json(content_type='application/json')
 	except Exception:
 		traceback.print_exc()
@@ -170,7 +170,7 @@ async def query_search(keyword):
 
 
 # 获取排行榜图片
-async def query_ranking_setu(number: int) -> (int, str):
+async def query_ranking_setu(number: int) -> dict:
 	image = generate_image_struct()
 	
 	page = number // get_config('acggov', 'per_page')
@@ -198,7 +198,7 @@ async def query_ranking_setu(number: int) -> (int, str):
 		}
 		try:
 			async with aiohttp.ClientSession(headers=acggov_headers) as session:
-				async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy')) as resp:
+				async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
 					data = await resp.json(content_type='application/json')
 		except Exception as _:
 			traceback.print_exc()
@@ -224,7 +224,7 @@ async def download_acggov_image(url: str):
 	hoshino.logger.info(f'[INFO]acggov downloading image{url}')
 	try:
 		async with aiohttp.ClientSession(headers=acggov_headers) as session:
-			async with session.get(url, proxy=get_config('acggov', 'acggov_proxy')) as resp:
+			async with session.get(url, proxy=get_config('acggov', 'acggov_proxy'),ssl=False) as resp:
 				data = await resp.read()
 				# 转jpg
 				byte_stream = io.BytesIO(data)
@@ -247,7 +247,7 @@ async def download_pixiv_image(url: str, id):
 	}
 	try:
 		async with aiohttp.ClientSession(headers=headers) as session:
-			async with session.get(url, proxy=get_config('acggov', 'pixiv_proxy')) as resp:
+			async with session.get(url, proxy=get_config('acggov', 'pixiv_proxy'), ssl=False) as resp:
 				data = await resp.read()
 				# 转jpg
 				byte_stream = io.BytesIO(data)
@@ -401,7 +401,7 @@ async def acggov_search_setu(keyword, num):
 
 
 # 获取排行榜
-async def acggov_get_ranking(page: int = 0) -> (int, str):
+async def acggov_get_ranking(page: int = 0) -> str:
 	date = (datetime.datetime.now() + datetime.timedelta(days=-2)).strftime("%Y-%m-%d")
 	data = await query_ranking(date, page)
 	if not 'response' in data:
@@ -419,7 +419,7 @@ async def acggov_get_ranking(page: int = 0) -> (int, str):
 
 
 # 获取排行榜图片
-async def acggov_get_ranking_setu(number: int) -> (int, str):
+async def acggov_get_ranking_setu(number: int) -> dict:
 	image = await query_ranking_setu(number)
 	
 	path = f'setu_mix/acggov/{image["id"]}.jpg'

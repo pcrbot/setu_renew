@@ -316,25 +316,3 @@ def lolicon_init():
 		native_info = load_native_info('lolicon')
 		native_r18_info = load_native_info('lolicon_r18')
 
-
-'''
-class Lolicon:
-
-    def __init__(self):
-        pass
-
-    async def get_setu(self):
-        pass
-
-    async def search_setu(self):
-        pass
-
-    async def get_ranking(self):
-        pass
-
-    async def get_ranking_setu(self):
-        pass
-
-    async def fetch_process(self):
-        await lolicon_fetch_process()
-'''
