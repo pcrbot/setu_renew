@@ -155,7 +155,7 @@ async def send_msg(msg_list, ev):
 			hoshino.logger.error('[ERROR]图片发送失败')
 			await hoshino.get_bot().send(ev, f'涩图太涩,发不出去力...')
 		await asyncio.sleep(1)
-		return list(range(1, len(msg_list)))
+		return list(range(len(msg_list)))
 
 
 @sv.on_prefix('setu')
