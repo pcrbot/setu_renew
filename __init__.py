@@ -33,7 +33,6 @@ config_default = {
 	},
 	"lolicon": {
 		"mode": 2,  # 0禁用 1无缓存 2有缓存在线 3有缓存离线
-		"apikey": [""],  # lolicon API，可多个
 		"r18": False,  # R18图开关
 		"use_thumb": True,  # 选取小图开关
 		"pixiv_direct": False,  # 是否直连pixiv

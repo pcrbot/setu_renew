@@ -16,7 +16,6 @@
     },
     "lolicon": {
         "mode": 2,
-        "apikey": [""],
         "r18": true,
         "use_thumb": false,
         "pixiv_direct": false,

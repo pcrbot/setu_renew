@@ -59,16 +59,11 @@ def load_native_info(sub_dir):
 
 # 获取随机色图
 async def query_setu(r18=0, keyword=None):
-	global quota_limit_time
 	image_list = []
-	apikey = get_config('lolicon', 'apikey')
-	if not key_vaildable_query:
-		return image_list
 	
 	data = {}
-	url = 'https://api.lolicon.app/setu'
+	url = 'https://api.lolicon.app/setu/v2'
 	params = {
-		'apikey': apikey,
 		'r18': r18,
 		'num': 10,
 	}
@@ -91,10 +86,7 @@ async def query_setu(r18=0, keyword=None):
 	if data['code'] != 0:
 		hoshino.logger.error(f'[ERROR]lolicon api error:{data["code"]},msg:{data["msg"]}')
 		if data['code'] == 429:
-			quota_limit_time = datetime.datetime.now(
-			) + datetime.timedelta(seconds=data['quota_min_ttl'])
 			hoshino.logger.error(f'[ERROR]lolicon api 已到达本日调用额度上限，次数+1时间：{quota_limit_time}s')
-			set_key_invaild(apikey, quota_limit_time)
 		return image_list
 	for item in data['data']:
 		image = generate_image_struct()

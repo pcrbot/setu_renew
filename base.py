@@ -143,13 +143,9 @@ async def get_ranking_setu(group_id, number: int) -> Tuple[int, str]:
 async def fetch_process():
 	tasks = []
 	if get_config('default', 'acggov'):
-		tasks.append(asyncio.ensure_future(acggov_fetch_process()))
+		await acggov_fetch_process()
 	if get_config('default', 'lolicon') or get_config('default', 'lolicon_r18'):
-		tasks.append(asyncio.ensure_future(lolicon_fetch_process()))
-	if not tasks:
-		return
-	for task in asyncio.as_completed(tasks):
-		await task
+		await lolicon_fetch_process()
 
 
 acggov_init()
