@@ -16,32 +16,13 @@ config = {}
 invaild_key_dict = {}
 group_list = {}
 config = json.load(open(cfgpath, 'r', encoding='utf8'))
-assert len(config['lolicon']['apikey']) != 0, '请至少填入一个lolicon的apikey'
 group_list = json.load(open(grouplistpath, 'r', encoding='utf8'))
 group_config = json.load(open(groupconfigpath, 'r', encoding='utf8'))
 
 
-def set_key_invaild(key, time):
-	invaild_key_dict[key] = datetime.datetime.now() + datetime.timedelta(seconds=time)
-
-
-def key_vaildable_query(key):
-	if key in invaild_key_dict:
-		if datetime.datetime.now() < invaild_key_dict[key]:
-			return False
-		else:
-			return True
-	else:
-		return True
-
 
 def get_config(key, sub_key):
 	if key in config and sub_key in config[key]:
-		if key == 'lolicon' and sub_key == "apikey":
-			apikey = config[key][sub_key][random.randint(0, len(config[key][sub_key]) - 1)]
-			while key_vaildable_query(apikey) is False:
-				apikey = config[key][sub_key][random.randint(0, len(config[key][sub_key]) - 1)]
-			return apikey
 		return config[key][sub_key]
 	return None
 
