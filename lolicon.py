@@ -69,8 +69,9 @@ async def query_setu(r18=0, keyword=None):
 	}
 	if keyword:
 		params['keyword'] = keyword
-	if get_config('lolicon', 'use_thumb'):
-		params['size1200'] = 'true'
+	thumb = get_config('lolicon', 'use_thumb')
+	if thumb:
+		params['size'] = 'regular'
 	if get_config('lolicon', 'pixiv_direct'):
 		params['proxy'] = 'disable'
 	
@@ -81,18 +82,16 @@ async def query_setu(r18=0, keyword=None):
 	except Exception:
 		traceback.print_exc()
 		return image_list
-	if 'code' not in data:
+	if 'error' not in data:
 		return image_list
-	if data['code'] != 0:
-		hoshino.logger.error(f'[ERROR]lolicon api error:{data["code"]},msg:{data["msg"]}')
-		if data['code'] == 429:
-			hoshino.logger.error(f'[ERROR]lolicon api 已到达本日调用额度上限，次数+1时间：{quota_limit_time}s')
+	if data['error'] != '':
+		hoshino.logger.error(f'[ERROR]lolicon api error,msg:{data["error"]}')
 		return image_list
 	for item in data['data']:
 		image = generate_image_struct()
 		image['id'] = item['pid']
 		image['title'] = item['title']
-		image['url'] = item['url']
+		image['url'] = item['urls']['regular' if thumb else 'original']
 		image['tags'] = item['tags']
 		image['r18'] = item['r18']
 		image['author'] = item['author']
@@ -167,12 +166,8 @@ def save_image(image):
 
 async def get_setu_online(num, r18=0, keyword=None):
 	image_list = await query_setu(r18=r18, keyword=keyword)
-	if get_api_num() != 1:
-		while image_list == None:
-			image_list = await query_setu(r18=r18, keyword=keyword)
-	else:
-		if image_list == None:
-			return
+	if image_list == None:
+		return
 	valid_list = []
 	
 	while len(image_list) > 0:
