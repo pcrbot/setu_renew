@@ -144,17 +144,16 @@ async def send_msg(msg_list, ev):
 				hoshino.logger.error('[ERROR]图片发送失败')
 				await hoshino.get_bot().send(ev, f'涩图太涩,发不出去力...')
 			await asyncio.sleep(1)
-		return result_list
 	else:
 		forward_msg = render_forward_msg(msg_list)
 		try:
-			await hoshino.get_bot().send_group_forward_msg(group_id=ev.group_id, messages=forward_msg)
+			result_list.append(await hoshino.get_bot().send_group_forward_msg(group_id=ev.group_id, messages=forward_msg))
 		except:
 			traceback.print_exc()
 			hoshino.logger.error('[ERROR]图片发送失败')
 			await hoshino.get_bot().send(ev, f'涩图太涩,发不出去力...')
 		await asyncio.sleep(1)
-		return list(range(len(msg_list)))
+	return result_list
 
 
 @sv.on_prefix('setu')
@@ -307,15 +306,14 @@ async def send_search_setu(bot, ev):
 	tlmt.increase(uid, len(result_list))
 	second = get_group_config(gid, "withdraw")
 	if second and second > 0:
-		if not get_config('base', 'enable_forward_msg'):
-			await asyncio.sleep(second)
-			for result in result_list:
-				try:
-					await bot.delete_msg(self_id=ev['self_id'], message_id=result['message_id'])
-				except:
-					traceback.print_exc()
-					hoshino.logger.error('[ERROR]撤回失败')
-				await asyncio.sleep(1)
+		await asyncio.sleep(second)
+		for result in result_list:
+			try:
+				await bot.delete_msg(self_id=ev['self_id'], message_id=result['message_id'])
+			except:
+				traceback.print_exc()
+				hoshino.logger.error('[ERROR]撤回失败')
+			await asyncio.sleep(1)
 
 
 @sv.on_rex(r'^[本每]日[涩色瑟]图排行榜\D*(\d*)')
