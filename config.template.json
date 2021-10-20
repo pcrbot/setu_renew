@@ -19,8 +19,8 @@
         "r18": true,
         "use_thumb": false,
         "pixiv_direct": false,
-        "pixiv_proxy": "",
-        "lolicon_proxy": ""
+        "proxy_site": "",
+        "local_proxy": ""
     },
     "acggov": {
         "mode": 2,

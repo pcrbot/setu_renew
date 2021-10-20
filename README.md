@@ -34,6 +34,8 @@
 
 **lolicon api v2 不再需要apikey**
 
+**acggov源已废弃,不再支持**
+
 - `base`分组:  
   - `daily_max` : 每日每人要涩图的上限
   - `freq_limit` : 两次之间的冷却时间
@@ -45,13 +47,13 @@
 - `default`分组 : 此处的配置为每个群的默认配置
   - `withdraw` : 撤回时间, 0为不撤回
   - `lolicon`、`lolicon_r18`、`acggov` : 是否启用各图源
-- `lolicon`分组(acggov分组同):
+- `lolicon`分组:
   - `mode` : 模块模式, 0=关闭, 1=在线(不使用本地仓库), 2=在线(使用本地仓库), 3=离线(仅使用本地仓库), 默认模式为2.
   - `r18` : 是否启用r18
   - `use_thumb` : 是否发送大小更小的图
   - `pixiv_direct` : 是否通过代理访问pixiv, 请在下方配置代理
-  - `pixiv_proxy` : 访问pixiv的代理 **(推荐使用`https://i.pixiv.cat`)**
-  - `lolicon_proxy` : 访问lolicon&上方代理的代理, 不需要请留空.
+  - `proxy_site` : pixiv的代理站或镜像站 **(推荐使用`https://i.pixiv.re`)**
+  - `local_proxy` : 本地代理地址, 不需要请留空.
 
 ## 指令说明
 

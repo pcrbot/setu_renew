@@ -77,7 +77,7 @@ async def query_setu(r18=0, keyword=None):
 	
 	try:
 		async with aiohttp.ClientSession() as session:
-			async with session.get(url, params=params, proxy=get_config('lolicon', 'lolicon_proxy')) as resp:
+			async with session.get(url, params=params, proxy=get_config('lolicon', 'local_proxy')) as resp:
 				data = await resp.json(content_type='application/json')
 	except Exception:
 		traceback.print_exc()
@@ -91,7 +91,8 @@ async def query_setu(r18=0, keyword=None):
 		image = generate_image_struct()
 		image['id'] = item['pid']
 		image['title'] = item['title']
-		image['url'] = item['urls']['regular' if thumb else 'original']
+		image['url'] = item['urls']['regular' if thumb else 'original'].replace("https://i.pixiv.cat/",
+		                                                                        get_config('lolicon', 'proxy_site'))
 		image['tags'] = item['tags']
 		image['r18'] = item['r18']
 		image['author'] = item['author']
@@ -103,7 +104,7 @@ async def download_image(url: str):
 	hoshino.logger.info(f'[INFO]lolicon downloading image:{url}')
 	try:
 		async with aiohttp.ClientSession() as session:
-			async with session.get(url, proxy=get_config('lolicon', 'lolicon_proxy')) as resp:
+			async with session.get(url, proxy=get_config('lolicon', 'local_proxy')) as resp:
 				data = await resp.read()
 				# 转jpg
 				byte_stream = io.BytesIO(data)
@@ -115,7 +116,7 @@ async def download_image(url: str):
 				return imgByteArr.getvalue()
 	except Exception as e:
 		hoshino.logger.error(
-            '[ERROR]download image {} failed,error {}'.format(url, e))
+			'[ERROR]download image {} failed,error {}'.format(url, e))
 	# traceback.print_exc()
 	return None
 
@@ -127,7 +128,7 @@ async def download_pixiv_image(url: str, id):
 	}
 	try:
 		async with aiohttp.ClientSession(headers=headers) as session:
-			async with session.get(url, proxy=get_config('lolicon', 'pixiv_proxy')) as resp:
+			async with session.get(url, proxy=get_config('lolicon', 'local_proxy')) as resp:
 				data = await resp.read()
 				# 转jpg
 				byte_stream = io.BytesIO(data)
@@ -139,7 +140,7 @@ async def download_pixiv_image(url: str, id):
 				return imgByteArr.getvalue()
 	except Exception as e:
 		hoshino.logger.error(
-            '[ERROR]download image {} failed,error {}'.format(url, e))
+			'[ERROR]download image {} failed,error {}'.format(url, e))
 	# traceback.print_exc()
 	return None
 
@@ -304,4 +305,3 @@ def lolicon_init():
 	if get_config('lolicon', 'mode') == 3:
 		native_info = load_native_info('lolicon')
 		native_r18_info = load_native_info('lolicon_r18')
-
