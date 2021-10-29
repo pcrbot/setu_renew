@@ -51,8 +51,8 @@
   - `mode` : 模块模式, 0=关闭, 1=在线(不使用本地仓库), 2=在线(使用本地仓库), 3=离线(仅使用本地仓库), 默认模式为2.
   - `r18` : 是否启用r18
   - `use_thumb` : 是否发送大小更小的图
-  - `pixiv_direct` : 是否通过代理访问pixiv, 请在下方配置代理
-  - `proxy_site` : pixiv的代理站或镜像站 **(推荐使用`https://i.pixiv.re`)**
+  - `pixiv_direct` : 是否直连访问pixiv, 若使用代理请在下方配置代理，并将此项置否
+  - `proxy_site` : pixiv的代理站或镜像站 **(推荐使用`https://i.pixiv.re/`)**
   - `local_proxy` : 本地代理地址, 不需要请留空.
 
 ## 指令说明
