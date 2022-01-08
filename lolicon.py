@@ -73,7 +73,7 @@ async def query_setu(r18=0, keyword=None):
 	if thumb:
 		params['size'] = 'regular'
 	if get_config('lolicon', 'pixiv_direct'):
-		params['proxy'] = 'disable'
+		params['proxy'] = ''
 	
 	try:
 		async with aiohttp.ClientSession() as session:
@@ -122,7 +122,7 @@ async def download_image(url: str):
 
 
 async def download_pixiv_image(url: str, id):
-	hoshino.logger.info('[INFO]lolicon downloading pixiv image', url)
+	hoshino.logger.info(f'[INFO]lolicon downloading image:{url}')
 	headers = {
 		'referer': f'https://www.pixiv.net/member_illust.php?mode=medium&illust_id={id}'
 	}
