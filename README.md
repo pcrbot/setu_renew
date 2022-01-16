@@ -2,6 +2,8 @@
 
 基于HoshinoBot v2的涩图插件, 从 [acg-gov.com](https://acg-gov.com) 和 [lolicon.app](https://lolicon.app/) 获取图片.
 
+**因为api格式的变动，以及初期代码水平的低劣，现有的版本已经积重难返。因此近期会重构项目，而老版本就不再做更新和维护，仅做存档。**
+
 **本项目基于@zyujs的[setu_mix](https://github.com/zyujs/setu_mix)改进而来。**
 
 ## 主要改进
