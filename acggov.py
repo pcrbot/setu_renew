@@ -182,14 +182,14 @@ async def query_ranking_setu(number: int) -> dict:
         image['title'] = '排行榜数据获取失败'
         return image
 
-    illust = data['response'][0]['works'][number]['work']['id']
-    image['title'] = data['response'][0]['works'][number]['work']['title']
-    image['author'] = data['response'][0]['works'][number]['work']['user']['name']
-    for tag in data['response'][0]['works'][number]['work']['tags']:
+    illust = data['illusts'][number]['id']
+    image['title'] = data['illusts'][number]['title']
+    image['author'] = data['illusts'][number]['user']['name']
+    for tag in data['illusts'][number]['tags']:
         image['tags'].append(tag)
 
     if get_config('acggov', 'use_thumb'):
-        image['url'] = data['response'][0]['works'][number]['work']['image_urls']['large']
+        image['url'] = data['illusts'][number]['image_urls']['large']
     else:
         data = {}
         url = 'https://api.acgmx.com/illusts/detail'
@@ -205,15 +205,15 @@ async def query_ranking_setu(number: int) -> dict:
             traceback.print_exc()
             image['title'] = 'detail获取失败'
             return image
-        if 'data' not in data:
+        if 'illusts' not in data:
             image['title'] = 'detail数据异常'
             return image
-        data = data['data']
-        page_count = data['illust']['page_count']
+        data = data['illusts']
+        page_count = data[number]['page_count']
         if page_count == 1:
-            image['url'] = data['illust']['meta_single_page']['original_image_url']
+            image['url'] = data[number]['meta_single_page']['original_image_url']
         else:
-            meta_pages = data['illust']['meta_pages']
+            meta_pages = data[number]['meta_pages']
             num = random.randint(0, len(meta_pages) - 1)
             image['url'] = meta_pages[num]['image_urls']['original']
 
@@ -222,7 +222,7 @@ async def query_ranking_setu(number: int) -> dict:
 
 
 async def download_acggov_image(url: str):
-    hoshino.logger.info(f'[INFO]acggov downloading image{url}')
+    hoshino.logger.info(f'[INFO]acggov downloading image {url}')
     try:
         async with aiohttp.ClientSession(headers=acggov_headers) as session:
             async with session.get(url, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
@@ -408,16 +408,16 @@ async def acggov_get_ranking(page: int = 0) -> str:
     date = (datetime.datetime.now() +
             datetime.timedelta(days=-2)).strftime("%Y-%m-%d")
     data = await query_ranking(date, page)
-    if not 'response' in data:
+    if not 'illusts' in data:
         return '数据获取失败'
-    works = data['response'][0]['works']
-    pages = data['pagination']['pages']
-    current = data['pagination']['current']
+    works = data['illusts']
+    pages = 10
+    current = page + 1
     num = page * get_config('acggov', 'per_page') + 1
     msg = ''
     for i in works:
-        msg += f'{num}.' + i['work']['title'] + \
-            '-' + str(i['work']['id']) + '\n'
+        msg += f'{num}.' + i['title'] + \
+            '-' + str(i['id']) + '\n'
         num += 1
     msg += f'第{current}页，共{str(pages)}页'
     return msg

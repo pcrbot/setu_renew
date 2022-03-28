@@ -330,7 +330,7 @@ async def send_ranking(bot, ev):
 	msg = await get_ranking(gid, page)
 	if msg == None:
 		msg = '模块未启用'
-	await bot.send(ev, msg)
+	await send_msg(msg, ev)
 
 
 @sv.on_prefix(('看涩图', '看色图', '看瑟图'))
