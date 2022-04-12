@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 .vscode/
+.vs/
 
 *.json
 !config.template.json
