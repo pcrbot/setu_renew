@@ -7,15 +7,13 @@ import random
 import sys
 import traceback
 
-import aiohttp
+import httpx
 from PIL import Image
 
 import hoshino
 from hoshino import R
 from .config import get_config
 
-if sys.platform == 'win32':
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 ranking_list = {}
 
@@ -83,7 +81,7 @@ async def query_ranking(date: str, page: int) -> dict:
     }
     data = {}
     try:
-        async with aiohttp.ClientSession(headers=acggov_headers) as session:
+        async with httpx.AsyncClient(headers=acggov_headers) as session:
             async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
                 data = await resp.json(content_type='application/json')
                 ranking_list[date][page] = data
@@ -97,7 +95,7 @@ async def query_setu():
     data = {}
     image = generate_image_struct()
     try:
-        async with aiohttp.ClientSession(headers=acggov_headers) as session:
+        async with httpx.AsyncClient(headers=acggov_headers) as session:
             async with session.get('https://api.acgmx.com/public/setu',
                                    proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
                 data = await resp.json(content_type='application/json')
@@ -134,7 +132,7 @@ async def query_search(keyword):
         'offset': 0,
     }
     try:
-        async with aiohttp.ClientSession(headers=acggov_headers) as session:
+        async with httpx.AsyncClient(headers=acggov_headers) as session:
             async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
                 data = await resp.json(content_type='application/json')
     except Exception:
@@ -198,7 +196,7 @@ async def query_ranking_setu(number: int) -> dict:
             'reduction': 'true',
         }
         try:
-            async with aiohttp.ClientSession(headers=acggov_headers) as session:
+            async with httpx.AsyncClient(headers=acggov_headers) as session:
                 async with session.get(url, params=params, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
                     data = await resp.json(content_type='application/json')
         except Exception as _:
@@ -224,7 +222,7 @@ async def query_ranking_setu(number: int) -> dict:
 async def download_acggov_image(url: str):
     hoshino.logger.info(f'[INFO]acggov downloading image {url}')
     try:
-        async with aiohttp.ClientSession(headers=acggov_headers) as session:
+        async with httpx.AsyncClient(headers=acggov_headers) as session:
             async with session.get(url, proxy=get_config('acggov', 'acggov_proxy'), ssl=False) as resp:
                 data = await resp.read()
                 # 转jpg
@@ -248,7 +246,7 @@ async def download_pixiv_image(url: str, id):
         'referer': f'https://www.pixiv.net/member_illust.php?mode=medium&illust_id={id}'
     }
     try:
-        async with aiohttp.ClientSession(headers=headers) as session:
+        async with httpx.AsyncClient(headers=headers) as session:
             async with session.get(url, proxy=get_config('acggov', 'pixiv_proxy'), ssl=False) as resp:
                 data = await resp.read()
                 # 转jpg
